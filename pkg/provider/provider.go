@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io"
 
-	internal "github.com/daytonaio/daytona-provider-sample/internal"
-	log_writers "github.com/daytonaio/daytona-provider-sample/internal/log"
-	provider_types "github.com/daytonaio/daytona-provider-sample/pkg/types"
+	internal "github.com/daytonaio/daytona-provider-aws/internal"
+	log_writers "github.com/daytonaio/daytona-provider-aws/internal/log"
+	provider_types "github.com/daytonaio/daytona-provider-aws/pkg/types"
 
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/daytonaio/daytona/pkg/provider"
@@ -14,7 +14,7 @@ import (
 	"github.com/daytonaio/daytona/pkg/workspace"
 )
 
-type SampleProvider struct {
+type AWSProvider struct {
 	BasePath           *string
 	DaytonaDownloadUrl *string
 	DaytonaVersion     *string
@@ -24,12 +24,9 @@ type SampleProvider struct {
 	ApiPort            *uint32
 	ServerPort         *uint32
 	NetworkKey         *string
-	OwnProperty        string
 }
 
-func (p *SampleProvider) Initialize(req provider.InitializeProviderRequest) (*util.Empty, error) {
-	p.OwnProperty = "my-own-property"
-
+func (p *AWSProvider) Initialize(req provider.InitializeProviderRequest) (*util.Empty, error) {
 	p.BasePath = &req.BasePath
 	p.DaytonaDownloadUrl = &req.DaytonaDownloadUrl
 	p.DaytonaVersion = &req.DaytonaVersion
@@ -43,18 +40,18 @@ func (p *SampleProvider) Initialize(req provider.InitializeProviderRequest) (*ut
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetInfo() (provider.ProviderInfo, error) {
+func (p AWSProvider) GetInfo() (provider.ProviderInfo, error) {
 	return provider.ProviderInfo{
-		Name:    "provider-sample",
+		Name:    "aws-provider",
 		Version: internal.Version,
 	}, nil
 }
 
-func (p SampleProvider) GetTargetManifest() (*provider.ProviderTargetManifest, error) {
+func (p AWSProvider) GetTargetManifest() (*provider.ProviderTargetManifest, error) {
 	return provider_types.GetTargetManifest(), nil
 }
 
-func (p SampleProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
+func (p AWSProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
 	info, err := p.GetInfo()
 	if err != nil {
 		return nil, err
@@ -70,7 +67,7 @@ func (p SampleProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) 
 	return &defaultTargets, nil
 }
 
-func (p SampleProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AWSProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	logWriter := io.MultiWriter(&log_writers.InfoLogWriter{})
 	if p.LogsDir != nil {
 		loggerFactory := logs.NewLoggerFactory(*p.LogsDir)
@@ -84,19 +81,19 @@ func (p SampleProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest)
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AWSProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StopWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AWSProvider) StopWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AWSProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) (*workspace.WorkspaceInfo, error) {
+func (p AWSProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) (*workspace.WorkspaceInfo, error) {
 	providerMetadata, err := p.getWorkspaceMetadata(workspaceReq)
 	if err != nil {
 		return nil, err
@@ -123,7 +120,7 @@ func (p SampleProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest
 	return workspaceInfo, nil
 }
 
-func (p SampleProvider) CreateProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AWSProvider) CreateProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	logWriter := io.MultiWriter(&log_writers.InfoLogWriter{})
 	if p.LogsDir != nil {
 		loggerFactory := logs.NewLoggerFactory(*p.LogsDir)
@@ -137,19 +134,19 @@ func (p SampleProvider) CreateProject(projectReq *provider.ProjectRequest) (*uti
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StartProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AWSProvider) StartProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StopProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AWSProvider) StopProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) DestroyProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AWSProvider) DestroyProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*workspace.ProjectInfo, error) {
+func (p AWSProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*workspace.ProjectInfo, error) {
 	providerMetadata := provider_types.ProjectMetadata{
 		Property: projectReq.Project.Name,
 	}
@@ -169,7 +166,7 @@ func (p SampleProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*wo
 	return projectInfo, nil
 }
 
-func (p SampleProvider) getWorkspaceMetadata(workspaceReq *provider.WorkspaceRequest) (string, error) {
+func (p AWSProvider) getWorkspaceMetadata(workspaceReq *provider.WorkspaceRequest) (string, error) {
 	metadata := provider_types.WorkspaceMetadata{
 		Property: workspaceReq.Workspace.Id,
 	}
