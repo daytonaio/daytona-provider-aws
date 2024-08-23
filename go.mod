@@ -4,8 +4,8 @@ go 1.22.2
 
 require (
 	github.com/aws/aws-sdk-go v1.54.19
-	github.com/daytonaio/daytona v0.24.0
-	github.com/docker/docker v26.1.4+incompatible
+	github.com/daytonaio/daytona v0.25.2
+	github.com/docker/docker v26.1.5+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.6.0
