@@ -348,7 +348,7 @@ func (a *AWSProvider) getWorkspaceLogWriter(workspaceId string) (io.Writer, func
 	cleanupFunc := func() {}
 
 	if a.LogsDir != nil {
-		loggerFactory := logs.NewLoggerFactory(*a.LogsDir)
+		loggerFactory := logs.NewLoggerFactory(a.LogsDir, nil)
 		wsLogWriter := loggerFactory.CreateWorkspaceLogger(workspaceId, logs.LogSourceProvider)
 		logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, wsLogWriter)
 		cleanupFunc = func() { wsLogWriter.Close() }
@@ -362,7 +362,7 @@ func (a *AWSProvider) getProjectLogWriter(workspaceId string, projectName string
 	cleanupFunc := func() {}
 
 	if a.LogsDir != nil {
-		loggerFactory := logs.NewLoggerFactory(*a.LogsDir)
+		loggerFactory := logs.NewLoggerFactory(a.LogsDir, nil)
 		projectLogWriter := loggerFactory.CreateProjectLogger(workspaceId, projectName, logs.LogSourceProvider)
 		logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, projectLogWriter)
 		cleanupFunc = func() { projectLogWriter.Close() }
