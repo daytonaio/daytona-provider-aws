@@ -24,8 +24,9 @@ func GetTargetManifest() *provider.ProviderTargetManifest {
 		"Region": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeString,
 			DefaultValue: "us-east-1",
-			Description: "The geographic area where AWS resourced are hosted. Default is us-east-1.\n" +
-				"List of available regions:\nhttps://docs.aws.amazon.com/general/latest/gr/rande.html",
+			Description: "The geographic area where AWS resourced are hosted. List of available regions:\n" +
+				"https://docs.aws.amazon.com/general/latest/gr/rande.html\n" +
+				"Leave blank if you've set the AWS_DEFAULT_REGION environment variable, or enter your region here.",
 		},
 		"Instance Type": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeString,
@@ -94,12 +95,23 @@ func ParseTargetOptions(optionsJson string) (*TargetOptions, error) {
 		}
 	}
 
+	if targetOptions.Region == "" {
+		region, ok := os.LookupEnv("AWS_DEFAULT_REGION")
+		if ok {
+			targetOptions.Region = region
+		}
+	}
+
 	if targetOptions.AccessKeyId == "" {
 		return nil, fmt.Errorf("access key id not set in env/target options")
 	}
 
 	if targetOptions.SecretAccessKey == "" {
 		return nil, fmt.Errorf("secret access key not set in env/target options")
+	}
+
+	if targetOptions.Region == "" {
+		return nil, fmt.Errorf("region not set in env/target options")
 	}
 
 	return &targetOptions, nil

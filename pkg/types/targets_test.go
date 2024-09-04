@@ -66,6 +66,7 @@ func TestParseTargetOptions(t *testing.T) {
 			envVars: map[string]string{
 				"AWS_ACCESS_KEY_ID":     "accessKeyID",
 				"AWS_SECRET_ACCESS_KEY": "secretAccessKey",
+				"AWS_DEFAULT_REGION":    "us-east-1",
 			},
 			want: &TargetOptions{
 				Region:          "us-east-1",
