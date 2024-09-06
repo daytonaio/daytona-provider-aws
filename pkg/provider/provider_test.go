@@ -15,10 +15,11 @@ import (
 var (
 	accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
 	secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	region    = os.Getenv("AWS_DEFAULT_REGION")
 
 	awsProvider   = &AWSProvider{}
 	targetOptions = &types.TargetOptions{
-		Region:          "us-east-1",
+		Region:          region,
 		ImageId:         "ami-04a81a99f5ec58529",
 		InstanceType:    "t2.micro",
 		DeviceName:      "/dev/sda1",
