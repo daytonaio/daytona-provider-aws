@@ -7,7 +7,7 @@ replace github.com/docker/go-connections => github.com/docker/go-connections v0.
 
 require (
 	github.com/aws/aws-sdk-go v1.54.19
-	github.com/daytonaio/daytona v0.28.1
+	github.com/daytonaio/daytona v0.29.0
 	github.com/docker/docker v27.1.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
