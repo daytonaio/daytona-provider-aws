@@ -53,7 +53,10 @@ func (a *AWSProvider) Initialize(req provider.InitializeProviderRequest) (*util.
 }
 
 func (a *AWSProvider) GetInfo() (provider.ProviderInfo, error) {
+	label := "AWS"
+
 	return provider.ProviderInfo{
+		Label:   &label,
 		Name:    "aws-provider",
 		Version: internal.Version,
 	}, nil
