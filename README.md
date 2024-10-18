@@ -7,7 +7,6 @@
 
 </div>
 
-
 <h1 align="center">Daytona AWS Provider</h1>
 <div align="center">
 This repository is the home of the <a href="https://github.com/daytonaio/daytona">Daytona</a> AWS Provider.
@@ -24,7 +23,6 @@ This repository is the home of the <a href="https://github.com/daytonaio/daytona
   <a href="https://x.com/Daytonaio">X</a>
 </p>
 
-
 The AWS Provider allows Daytona to create and manage workspace projects on Amazon EC2 instances.
 
 To use this provider, ensure your AWS programmatic access user has the `AmazonEC2FullAccess` permissions.
@@ -32,20 +30,20 @@ This policy grants the necessary permissions to manage EC2 instances, which is c
 
 ## Target Options
 
-| Property                        | Type     	    | Optional 	  | DefaultValue                	 | InputMasked 	         | DisabledPredicate 	 |
-|---------------------------------|---------------|-------------|-------------------------------|-----------------------|---------------------|
-| Region         	                | String   	    | true    	   | us-east-1      	              | false       	         | 	                   |
-| Image Id                        | String   	    | true     	  | 	ami-04a81a99f5ec58529        | false               	 | 	                   |
-| Instance Type             	     | String      	 | true     	  | 	           t2.micro          | false       	         | 	                   |
-| Device Name             	       | String      	 | true     	  | 	           t2./dev/sda1      | false       	         | 	                   |
-| Volume Size             	       | String      	 | true     	  | 	           10                | false       	         | 	                   |
-| Volume Type             	       | String      	 | true     	  | 	           gp3               | false       	         | 	                   |
-| Access Key Id             	     | String      	 | false     	 | 	                             | true       	          | 	                   |
-| Secret Access Key             	 | String      	 | false     	 | 	                             | true       	          | 	                   |
+| Property          | Type   | Optional | DefaultValue          | InputMasked | DisabledPredicate |
+| ----------------- | ------ | -------- | --------------------- | ----------- | ----------------- |
+| Region            | String | true     | us-east-1             | false       |                   |
+| Image Id          | String | true     | ami-04a81a99f5ec58529 | false       |                   |
+| Instance Type     | String | true     | t2.micro              | false       |                   |
+| Device Name       | String | true     | t2./dev/sda1          | false       |                   |
+| Volume Size       | String | true     | 10                    | false       |                   |
+| Volume Type       | String | true     | gp3                   | false       |                   |
+| Access Key Id     | String | false    |                       | true        |                   |
+| Secret Access Key | String | false    |                       | true        |                   |
 
-### Default Targets
+### Preset Targets
 
-The AWS Provider has no default targets. Before using the provider you must set the target using the `daytona target set` command.
+The AWS Provider has no preset targets. Before using the provider you must set the target using the `daytona target set` command.
 
 ## Code of Conduct
 
@@ -66,4 +64,3 @@ Afterwards, navigate to the [contributing guide](CONTRIBUTING.md) to get started
 
 For more information on how to use and develop Daytona, talk to us on
 [Slack](https://go.daytona.io/slack).
-
