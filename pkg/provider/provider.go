@@ -66,7 +66,7 @@ func (a *AWSProvider) GetTargetManifest() (*provider.ProviderTargetManifest, err
 	return types.GetTargetManifest(), nil
 }
 
-func (a *AWSProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
+func (a *AWSProvider) GetPresetTargets() (*[]provider.ProviderTarget, error) {
 	return new([]provider.ProviderTarget), nil
 }
 
