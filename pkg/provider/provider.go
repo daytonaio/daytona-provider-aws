@@ -346,6 +346,11 @@ func (a *AWSProvider) getWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) 
 	}, nil
 }
 
+func (a *AWSProvider) CheckRequirements() (*[]provider.RequirementStatus, error) {
+	results := []provider.RequirementStatus{}
+	return &results, nil 
+}
+
 func (a *AWSProvider) getWorkspaceLogWriter(workspaceId string) (io.Writer, func()) {
 	logWriter := io.MultiWriter(&logwriters.InfoLogWriter{})
 	cleanupFunc := func() {}
