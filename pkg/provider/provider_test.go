@@ -8,8 +8,8 @@ import (
 
 	awsutil "github.com/daytonaio/daytona-provider-aws/pkg/provider/util"
 	"github.com/daytonaio/daytona-provider-aws/pkg/types"
+	"github.com/daytonaio/daytona/pkg/models"
 	"github.com/daytonaio/daytona/pkg/provider"
-	"github.com/daytonaio/daytona/pkg/workspace"
 )
 
 var (
@@ -29,61 +29,62 @@ var (
 		SecretAccessKey: secretKey,
 	}
 
-	workspaceReq *provider.WorkspaceRequest
+	targetReq *provider.TargetRequest
 )
 
-func TestCreateWorkspace(t *testing.T) {
-	_, _ = awsProvider.CreateWorkspace(workspaceReq)
+func TestCreateTarget(t *testing.T) {
+	_, _ = awsProvider.CreateTarget(targetReq)
 
-	_, err := awsutil.GetInstance(workspaceReq.Workspace, targetOptions)
+	_, err := awsutil.GetInstance(targetReq.Target, targetOptions)
 	if err != nil {
 		t.Fatalf("Error getting machine: %s", err)
 	}
 }
 
-func TestWorkspaceInfo(t *testing.T) {
-	workspaceInfo, err := awsProvider.GetWorkspaceInfo(workspaceReq)
+func TestGetTargetProviderMetadata(t *testing.T) {
+	targetInfo, err := awsProvider.GetTargetProviderMetadata(targetReq)
 	if err != nil {
-		t.Fatalf("Error getting workspace info: %s", err)
+		t.Fatalf("Error getting target info: %s", err)
 	}
 
-	var workspaceMetadata types.WorkspaceMetadata
-	err = json.Unmarshal([]byte(workspaceInfo.ProviderMetadata), &workspaceMetadata)
+	var targetMetadata types.TargetMetadata
+	err = json.Unmarshal([]byte(targetInfo), &targetMetadata)
 	if err != nil {
-		t.Fatalf("Error unmarshalling workspace metadata: %s", err)
+		t.Fatalf("Error unmarshalling target metadata: %s", err)
 	}
 
-	instance, err := awsutil.GetInstance(workspaceReq.Workspace, targetOptions)
+	instance, err := awsutil.GetInstance(targetReq.Target, targetOptions)
 	if err != nil {
 		t.Fatalf("Error getting machine: %s", err)
 	}
 
-	if workspaceMetadata.InstanceId != *instance.InstanceId {
-		t.Fatalf("Expected instance id %s, got %s", workspaceMetadata.InstanceId, *instance.InstanceId)
+	if targetMetadata.InstanceId != *instance.InstanceId {
+		t.Fatalf("Expected instance id %s, got %s", targetMetadata.InstanceId, *instance.InstanceId)
 	}
 }
 
-func TestDestroyWorkspace(t *testing.T) {
-	_, err := awsProvider.DestroyWorkspace(workspaceReq)
+func TestDestroyTarget(t *testing.T) {
+	_, err := awsProvider.DestroyTarget(targetReq)
 	if err != nil {
-		t.Fatalf("Error destroying workspace: %s", err)
+		t.Fatalf("Error destroying target: %s", err)
 	}
 	time.Sleep(3 * time.Second)
 
-	_, err = awsutil.GetInstance(workspaceReq.Workspace, targetOptions)
+	_, err = awsutil.GetInstance(targetReq.Target, targetOptions)
 	if err == nil {
-		t.Fatalf("Error destroyed workspace still exists")
+		t.Fatalf("Error destroyed target still exists")
 	}
 }
 
 func init() {
 	_, err := awsProvider.Initialize(provider.InitializeProviderRequest{
-		BasePath:           "/tmp/workspaces",
+		BasePath:           "/tmp/targets",
 		DaytonaDownloadUrl: "https://download.daytona.io/daytona/install.sh",
 		DaytonaVersion:     "latest",
 		ServerUrl:          "",
 		ApiUrl:             "",
-		LogsDir:            "/tmp/logs",
+		WorkspaceLogsDir:   "/tmp/workspace/logs",
+		TargetLogsDir:      "/tmp/target/logs",
 	})
 	if err != nil {
 		panic(err)
@@ -94,11 +95,19 @@ func init() {
 		panic(err)
 	}
 
-	workspaceReq = &provider.WorkspaceRequest{
-		TargetOptions: string(opts),
-		Workspace: &workspace.Workspace{
+	targetReq = &provider.TargetRequest{
+		Target: &models.Target{
 			Id:   "123",
-			Name: "workspace",
+			Name: "target",
+			TargetConfig: models.TargetConfig{
+				Name: "test",
+				ProviderInfo: models.ProviderInfo{
+					Name:    "aws-provider",
+					Version: "test",
+				},
+				Options: string(opts),
+				Deleted: false,
+			},
 		},
 	}
 

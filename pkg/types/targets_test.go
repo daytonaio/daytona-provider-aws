@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetTargetManifest(t *testing.T) {
-	targetManifest := GetTargetManifest()
+	targetManifest := GetTargetConfigManifest()
 	if targetManifest == nil {
 		t.Fatalf("Expected target manifest but got nil")
 	}
