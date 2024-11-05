@@ -54,13 +54,13 @@ func (a *AWSProvider) waitForDial(workspaceId string, dialTimeout time.Duration)
 	}
 }
 
-func (a *AWSProvider) getDockerClient(workspaceId string) (docker.IDockerClient, error) {
+func (a *AWSProvider) getDockerClient(targetId string) (docker.IDockerClient, error) {
 	tsnetConn, err := a.getTsnetConn()
 	if err != nil {
 		return nil, err
 	}
 
-	remoteHost := fmt.Sprintf("tcp://%s:2375", workspaceId)
+	remoteHost := fmt.Sprintf("tcp://%s:2375", targetId)
 	cli, err := client.NewClientWithOpts(client.WithDialContext(tsnetConn.Dial), client.WithHost(remoteHost), client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err

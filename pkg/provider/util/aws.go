@@ -9,16 +9,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/daytonaio/daytona-provider-aws/pkg/types"
-	"github.com/daytonaio/daytona/pkg/workspace"
+	"github.com/daytonaio/daytona/pkg/models"
 )
 
-func CreateWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions, initScript string) error {
+func CreateTarget(target *models.Target, opts *types.TargetOptions, initScript string) error {
 	client, err := getEC2Client(opts)
 	if err != nil {
 		return err
 	}
 
-	envVars := workspace.EnvVars
+	envVars := target.EnvVars
 	envVars["DAYTONA_AGENT_LOG_FILE_PATH"] = "/home/daytona/.daytona-agent.log"
 
 	userData := `#!/bin/bash
@@ -106,11 +106,11 @@ systemctl start daytona-agent.service
 				Tags: []*ec2.Tag{
 					{
 						Key:   aws.String("Name"),
-						Value: aws.String(fmt.Sprintf("daytona-%s", workspace.Id)),
+						Value: aws.String(fmt.Sprintf("daytona-%s", target.Id)),
 					},
 					{
 						Key:   aws.String("WorkspaceID"),
-						Value: aws.String(workspace.Id),
+						Value: aws.String(target.Id),
 					},
 				},
 			},
@@ -125,13 +125,13 @@ systemctl start daytona-agent.service
 	})
 }
 
-func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func StartTarget(target *models.Target, opts *types.TargetOptions) error {
 	client, err := getEC2Client(opts)
 	if err != nil {
 		return err
 	}
 
-	instance, err := getInstanceByWorkspaceID(client, workspace.Id)
+	instance, err := getInstanceByWorkspaceID(client, target.Id)
 	if err != nil {
 		return err
 	}
@@ -152,13 +152,13 @@ func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) e
 	})
 }
 
-func StopWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func StopTarget(target *models.Target, opts *types.TargetOptions) error {
 	client, err := getEC2Client(opts)
 	if err != nil {
 		return err
 	}
 
-	instance, err := getInstanceByWorkspaceID(client, workspace.Id)
+	instance, err := getInstanceByWorkspaceID(client, target.Id)
 	if err != nil {
 		return err
 	}
@@ -175,13 +175,13 @@ func StopWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) er
 	})
 }
 
-func DeleteWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func DeleteTarget(target *models.Target, opts *types.TargetOptions) error {
 	client, err := getEC2Client(opts)
 	if err != nil {
 		return err
 	}
 
-	instance, err := getInstanceByWorkspaceID(client, workspace.Id)
+	instance, err := getInstanceByWorkspaceID(client, target.Id)
 	if err != nil {
 		return err
 	}
@@ -192,13 +192,13 @@ func DeleteWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) 
 	return err
 }
 
-func GetInstance(workspace *workspace.Workspace, opts *types.TargetOptions) (*ec2.Instance, error) {
+func GetInstance(target *models.Target, opts *types.TargetOptions) (*ec2.Instance, error) {
 	client, err := getEC2Client(opts)
 	if err != nil {
 		return nil, err
 	}
 
-	return getInstanceByWorkspaceID(client, workspace.Id)
+	return getInstanceByWorkspaceID(client, target.Id)
 }
 
 // getEC2Client  creates a new EC2 client using the provided target options.
