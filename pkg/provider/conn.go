@@ -32,7 +32,7 @@ func (a *AWSProvider) getTsnetConn() (*tsnet.Server, error) {
 	return a.tsnetConn, nil
 }
 
-func (a *AWSProvider) waitForDial(workspaceId string, dialTimeout time.Duration) error {
+func (a *AWSProvider) waitForDial(targetId string, dialTimeout time.Duration) error {
 	tsnetConn, err := a.getTsnetConn()
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func (a *AWSProvider) waitForDial(workspaceId string, dialTimeout time.Duration)
 			return fmt.Errorf("timeout: dialing timed out after %f minutes", dialTimeout.Minutes())
 		}
 
-		dialConn, err := tsnetConn.Dial(context.Background(), "tcp", fmt.Sprintf("%s:%d", workspaceId, config.SSH_PORT))
+		dialConn, err := tsnetConn.Dial(context.Background(), "tcp", fmt.Sprintf("%s:%d", targetId, config.SSH_PORT))
 		if err == nil {
 			dialConn.Close()
 			return nil
