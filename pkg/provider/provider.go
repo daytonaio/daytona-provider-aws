@@ -364,6 +364,7 @@ func getWorkspaceDir(workspaceReq *provider.WorkspaceRequest) string {
 	return path.Join(
 		getTargetDir(workspaceReq.Workspace.TargetId),
 		workspaceReq.Workspace.Id,
+		workspaceReq.Workspace.WorkspaceFolderName(),
 	)
 }
 
