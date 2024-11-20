@@ -68,7 +68,7 @@ After=network.target
 
 [Service]
 User=daytona
-ExecStart=/usr/local/bin/daytona agent --host
+ExecStart=/usr/local/bin/daytona agent --target
 Restart=always
 `
 
