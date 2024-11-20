@@ -14,12 +14,12 @@ import (
 	"github.com/daytonaio/daytona-provider-aws/pkg/types"
 	"github.com/daytonaio/daytona/pkg/agent/ssh/config"
 	"github.com/daytonaio/daytona/pkg/docker"
+	"github.com/daytonaio/daytona/pkg/models"
 	"github.com/daytonaio/daytona/pkg/ssh"
 	"github.com/daytonaio/daytona/pkg/tailscale"
 	"tailscale.com/tsnet"
 
 	"github.com/daytonaio/daytona/pkg/logs"
-	"github.com/daytonaio/daytona/pkg/models"
 	"github.com/daytonaio/daytona/pkg/provider"
 	"github.com/daytonaio/daytona/pkg/provider/util"
 )
@@ -220,14 +220,14 @@ func (a *AWSProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (
 	defer cleanupFunc()
 	logWriter.Write([]byte("\033[?25h\n"))
 
-	dockerClient, err := a.getDockerClient(workspaceReq.Target.Id)
+	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
 		return nil, err
 	}
 
 	sshClient, err := tailscale.NewSshClient(a.tsnetConn, &ssh.SessionConfig{
-		Hostname: workspaceReq.Target.Id,
+		Hostname: workspaceReq.Workspace.Target.Id,
 		Port:     config.SSH_PORT,
 	})
 	if err != nil {
@@ -255,14 +255,14 @@ func (a *AWSProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*
 	logWriter, cleanupFunc := a.getWorkspaceLogWriter(workspaceReq.Workspace.Id, workspaceReq.Workspace.Name)
 	defer cleanupFunc()
 
-	dockerClient, err := a.getDockerClient(workspaceReq.Target.Id)
+	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
 		return nil, err
 	}
 
 	sshClient, err := tailscale.NewSshClient(a.tsnetConn, &ssh.SessionConfig{
-		Hostname: workspaceReq.Target.Id,
+		Hostname: workspaceReq.Workspace.Target.Id,
 		Port:     config.SSH_PORT,
 	})
 	if err != nil {
@@ -287,7 +287,7 @@ func (a *AWSProvider) StopWorkspace(workspaceReq *provider.WorkspaceRequest) (*u
 	logWriter, cleanupFunc := a.getWorkspaceLogWriter(workspaceReq.Workspace.Id, workspaceReq.Workspace.Name)
 	defer cleanupFunc()
 
-	dockerClient, err := a.getDockerClient(workspaceReq.Target.Id)
+	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
 		return nil, err
@@ -300,14 +300,14 @@ func (a *AWSProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) 
 	logWriter, cleanupFunc := a.getWorkspaceLogWriter(workspaceReq.Workspace.Id, workspaceReq.Workspace.Name)
 	defer cleanupFunc()
 
-	dockerClient, err := a.getDockerClient(workspaceReq.Target.Id)
+	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
 		return nil, err
 	}
 
 	sshClient, err := tailscale.NewSshClient(a.tsnetConn, &ssh.SessionConfig{
-		Hostname: workspaceReq.Target.Id,
+		Hostname: workspaceReq.Workspace.Target.Id,
 		Port:     config.SSH_PORT,
 	})
 	if err != nil {
@@ -323,7 +323,7 @@ func (a *AWSProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) 
 	logWriter, cleanupFunc := a.getWorkspaceLogWriter(workspaceReq.Workspace.Id, workspaceReq.Workspace.Name)
 	defer cleanupFunc()
 
-	dockerClient, err := a.getDockerClient(workspaceReq.Target.Id)
+	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
 		return nil, err
