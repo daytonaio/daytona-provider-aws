@@ -237,14 +237,13 @@ func (a *AWSProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (
 	defer sshClient.Close()
 
 	return new(util.Empty), dockerClient.CreateWorkspace(&docker.CreateWorkspaceOptions{
-		Workspace:                workspaceReq.Workspace,
-		WorkspaceDir:             getWorkspaceDir(workspaceReq),
-		ContainerRegistry:        workspaceReq.ContainerRegistry,
-		BuilderImage:             workspaceReq.BuilderImage,
-		BuilderContainerRegistry: workspaceReq.BuilderContainerRegistry,
-		LogWriter:                logWriter,
-		Gpc:                      workspaceReq.GitProviderConfig,
-		SshClient:                sshClient,
+		Workspace:           workspaceReq.Workspace,
+		WorkspaceDir:        getWorkspaceDir(workspaceReq),
+		ContainerRegistries: workspaceReq.ContainerRegistries,
+		BuilderImage:        workspaceReq.BuilderImage,
+		LogWriter:           logWriter,
+		Gpc:                 workspaceReq.GitProviderConfig,
+		SshClient:           sshClient,
 	})
 }
 
@@ -272,14 +271,13 @@ func (a *AWSProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*
 	defer sshClient.Close()
 
 	return new(util.Empty), dockerClient.StartWorkspace(&docker.CreateWorkspaceOptions{
-		Workspace:                workspaceReq.Workspace,
-		WorkspaceDir:             getWorkspaceDir(workspaceReq),
-		ContainerRegistry:        workspaceReq.ContainerRegistry,
-		BuilderImage:             workspaceReq.BuilderImage,
-		BuilderContainerRegistry: workspaceReq.BuilderContainerRegistry,
-		LogWriter:                logWriter,
-		Gpc:                      workspaceReq.GitProviderConfig,
-		SshClient:                sshClient,
+		Workspace:           workspaceReq.Workspace,
+		WorkspaceDir:        getWorkspaceDir(workspaceReq),
+		ContainerRegistries: workspaceReq.ContainerRegistries,
+		BuilderImage:        workspaceReq.BuilderImage,
+		LogWriter:           logWriter,
+		Gpc:                 workspaceReq.GitProviderConfig,
+		SshClient:           sshClient,
 	}, *a.DaytonaDownloadUrl)
 }
 
