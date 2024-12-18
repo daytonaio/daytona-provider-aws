@@ -41,14 +41,14 @@ func TestCreateTarget(t *testing.T) {
 	}
 }
 
-func TestTargetInfo(t *testing.T) {
-	targetInfo, err := awsProvider.GetTargetInfo(targetReq)
+func TestGetTargetProviderMetadata(t *testing.T) {
+	targetInfo, err := awsProvider.GetTargetProviderMetadata(targetReq)
 	if err != nil {
 		t.Fatalf("Error getting target info: %s", err)
 	}
 
 	var targetMetadata types.TargetMetadata
-	err = json.Unmarshal([]byte(targetInfo.ProviderMetadata), &targetMetadata)
+	err = json.Unmarshal([]byte(targetInfo), &targetMetadata)
 	if err != nil {
 		t.Fatalf("Error unmarshalling target metadata: %s", err)
 	}
@@ -83,7 +83,8 @@ func init() {
 		DaytonaVersion:     "latest",
 		ServerUrl:          "",
 		ApiUrl:             "",
-		LogsDir:            "/tmp/logs",
+		WorkspaceLogsDir:   "/tmp/workspace/logs",
+		TargetLogsDir:      "/tmp/target/logs",
 	})
 	if err != nil {
 		panic(err)
