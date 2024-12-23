@@ -31,9 +31,11 @@ type AWSProvider struct {
 	ServerUrl          *string
 	NetworkKey         *string
 	ApiUrl             *string
+	ApiKey             *string
 	ApiPort            *uint32
 	ServerPort         *uint32
-	LogsDir            *string
+	WorkspaceLogsDir   *string
+	TargetLogsDir      *string
 	tsnetConn          *tsnet.Server
 }
 
@@ -44,25 +46,23 @@ func (a *AWSProvider) Initialize(req provider.InitializeProviderRequest) (*util.
 	a.ServerUrl = &req.ServerUrl
 	a.NetworkKey = &req.NetworkKey
 	a.ApiUrl = &req.ApiUrl
+	a.ApiKey = req.ApiKey
 	a.ApiPort = &req.ApiPort
 	a.ServerPort = &req.ServerPort
-	a.LogsDir = &req.LogsDir
+	a.WorkspaceLogsDir = &req.WorkspaceLogsDir
+	a.TargetLogsDir = &req.TargetLogsDir
 
 	return new(util.Empty), nil
 }
 
-func (a *AWSProvider) GetInfo() (provider.ProviderInfo, error) {
+func (a *AWSProvider) GetInfo() (models.ProviderInfo, error) {
 	label := "AWS"
 
-	return provider.ProviderInfo{
+	return models.ProviderInfo{
 		Label:   &label,
 		Name:    "aws-provider",
 		Version: internal.Version,
 	}, nil
-}
-
-func (a *AWSProvider) GetTargetConfigManifest() (*provider.TargetConfigManifest, error) {
-	return types.GetTargetConfigManifest(), nil
 }
 
 func (a *AWSProvider) GetPresetTargetConfigs() (*[]provider.TargetConfig, error) {
@@ -171,20 +171,20 @@ func (a *AWSProvider) DestroyTarget(targetReq *provider.TargetRequest) (*util.Em
 	return new(util.Empty), awsutil.DeleteTarget(targetReq.Target, targetOptions)
 }
 
-func (a *AWSProvider) GetTargetInfo(targetReq *provider.TargetRequest) (*models.TargetInfo, error) {
+func (a *AWSProvider) GetTargetProviderMetadata(targetReq *provider.TargetRequest) (string, error) {
 	logWriter, cleanupFunc := a.getTargetLogWriter(targetReq.Target.Id, targetReq.Target.Name)
 	defer cleanupFunc()
 
 	targetOptions, err := types.ParseTargetOptions(targetReq.Target.TargetConfig.Options)
 	if err != nil {
 		logWriter.Write([]byte("Failed to parse target options: " + err.Error() + "\n"))
-		return nil, err
+		return "", err
 	}
 
 	instance, err := awsutil.GetInstance(targetReq.Target, targetOptions)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get machine: " + err.Error() + "\n"))
-		return nil, err
+		return "", err
 
 	}
 
@@ -201,13 +201,10 @@ func (a *AWSProvider) GetTargetInfo(targetReq *provider.TargetRequest) (*models.
 	}
 	jsonMetadata, err := json.Marshal(metadata)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &models.TargetInfo{
-		Name:             targetReq.Target.Name,
-		ProviderMetadata: string(jsonMetadata),
-	}, nil
+	return string(jsonMetadata), nil
 }
 
 func (a *AWSProvider) CheckRequirements() (*[]provider.RequirementStatus, error) {
@@ -317,28 +314,35 @@ func (a *AWSProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) 
 	return new(util.Empty), dockerClient.DestroyWorkspace(workspaceReq.Workspace, getWorkspaceDir(workspaceReq), sshClient)
 }
 
-func (a *AWSProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) (*models.WorkspaceInfo, error) {
+func (a *AWSProvider) GetWorkspaceProviderMetadata(workspaceReq *provider.WorkspaceRequest) (string, error) {
 	logWriter, cleanupFunc := a.getWorkspaceLogWriter(workspaceReq.Workspace.Id, workspaceReq.Workspace.Name)
 	defer cleanupFunc()
 
 	dockerClient, err := a.getDockerClient(workspaceReq.Workspace.Target.Id)
 	if err != nil {
 		logWriter.Write([]byte("Failed to get docker client: " + err.Error() + "\n"))
-		return nil, err
+		return "", err
 	}
 
-	return dockerClient.GetWorkspaceInfo(workspaceReq.Workspace)
+	return dockerClient.GetWorkspaceProviderMetadata(workspaceReq.Workspace)
 }
 
 func (a *AWSProvider) getWorkspaceLogWriter(workspaceId, workspaceName string) (io.Writer, func()) {
 	logWriter := io.MultiWriter(&logwriters.InfoLogWriter{})
 	cleanupFunc := func() {}
 
-	if a.LogsDir != nil {
-		loggerFactory := logs.NewLoggerFactory(a.LogsDir, nil)
-		wsLogWriter := loggerFactory.CreateWorkspaceLogger(workspaceId, workspaceName, logs.LogSourceProvider)
-		logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, wsLogWriter)
-		cleanupFunc = func() { wsLogWriter.Close() }
+	if a.WorkspaceLogsDir != nil {
+		loggerFactory := logs.NewLoggerFactory(logs.LoggerFactoryConfig{
+			LogsDir:     *a.WorkspaceLogsDir,
+			ApiUrl:      a.ApiUrl,
+			ApiKey:      a.ApiKey,
+			ApiBasePath: &logs.ApiBasePathWorkspace,
+		})
+		workspaceLogWriter, err := loggerFactory.CreateLogger(workspaceId, workspaceName, logs.LogSourceProvider)
+		if err == nil {
+			logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, workspaceLogWriter)
+			cleanupFunc = func() { workspaceLogWriter.Close() }
+		}
 	}
 
 	return logWriter, cleanupFunc
@@ -348,11 +352,18 @@ func (a *AWSProvider) getTargetLogWriter(targetId, targetName string) (io.Writer
 	logWriter := io.MultiWriter(&logwriters.InfoLogWriter{})
 	cleanupFunc := func() {}
 
-	if a.LogsDir != nil {
-		loggerFactory := logs.NewLoggerFactory(a.LogsDir, nil)
-		projectLogWriter := loggerFactory.CreateTargetLogger(targetId, targetName, logs.LogSourceProvider)
-		logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, projectLogWriter)
-		cleanupFunc = func() { projectLogWriter.Close() }
+	if a.TargetLogsDir != nil {
+		loggerFactory := logs.NewLoggerFactory(logs.LoggerFactoryConfig{
+			LogsDir:     *a.TargetLogsDir,
+			ApiUrl:      a.ApiUrl,
+			ApiKey:      a.ApiKey,
+			ApiBasePath: &logs.ApiBasePathTarget,
+		})
+		workspaceLogWriter, err := loggerFactory.CreateLogger(targetId, targetName, logs.LogSourceProvider)
+		if err == nil {
+			logWriter = io.MultiWriter(&logwriters.InfoLogWriter{}, workspaceLogWriter)
+			cleanupFunc = func() { workspaceLogWriter.Close() }
+		}
 	}
 
 	return logWriter, cleanupFunc
