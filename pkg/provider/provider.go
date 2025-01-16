@@ -59,9 +59,10 @@ func (a *AWSProvider) GetInfo() (models.ProviderInfo, error) {
 	label := "AWS"
 
 	return models.ProviderInfo{
-		Label:   &label,
-		Name:    "aws-provider",
-		Version: internal.Version,
+		Label:                &label,
+		Name:                 "aws-provider",
+		Version:              internal.Version,
+		TargetConfigManifest: *types.GetTargetConfigManifest(),
 	}, nil
 }
 
