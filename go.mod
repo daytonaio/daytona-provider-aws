@@ -7,7 +7,7 @@ replace github.com/docker/go-connections => github.com/docker/go-connections v0.
 
 require (
 	github.com/aws/aws-sdk-go v1.54.19
-	github.com/daytonaio/daytona v0.47.0
+	github.com/daytonaio/daytona v0.51.1-0.20250117144757-c213b32ca9c7
 	github.com/docker/docker v27.2.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
@@ -15,8 +15,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	tailscale.com v1.72.1
 )
-
-replace github.com/daytonaio/daytona => /workspaces/daytona
 
 require (
 	code.gitea.io/sdk/gitea v0.17.1 // indirect
