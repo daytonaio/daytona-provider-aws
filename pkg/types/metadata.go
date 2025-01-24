@@ -1,6 +1,6 @@
 package types
 
-type WorkspaceMetadata struct {
+type TargetMetadata struct {
 	InstanceId string
 	Tags       map[string]string
 	IsRunning  bool
